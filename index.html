@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment 3</title>
+    <link rel="stylesheet" href="https://bootswatch.com/5/sandstone/bootstrap.min.css">
+    <script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Navigation bar -->
+    <nav class="navbar navbar-expand-lg bg-dark mb-3" data-bs-theme="dark">
+        <div class="container">
+            <a href="#" class="navbar-brand">Assignment 3</a>
+        </div>
+    </nav>
+
+    <!-- Tabs for the four REST APIs (BMI, Ideal Weight, Inches to Centimeters, Pounds to Kilograms) -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" data-bs-toggle="tab" href="#api1" aria-selected="true" role="tab">BMI</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" data-bs-toggle="tab" href="#api2" aria-selected="false" role="tab">Ideal Weight</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" data-bs-toggle="tab" href="#api3" aria-selected="false" role="tab">in -> cm</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" data-bs-toggle="tab" href="#api4" aria-selected="false" role="tab">lbs -> kg</a>
+        </li>
+    </ul>
+
+    <!-- Contents within tabs -->
+    <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade active show" id="api1" role="tabpanel">
+            <div class="container searchContainer mb-3">
+                <div class="search card card-body">
+                    <h1>BMI</h1>
+                    <p class="lead">Enter your height in cm:</p>
+                    <input type="text" id="bmiheight" class="form-control" placeholder="enter height...">
+                    <p class="lead">Enter your weight in kg:</p>
+                    <input type="text" id="bmiweight" class="form-control" placeholder="enter weight...">   
+                    <br>             
+                    <button type="button" id="button1" class="btn btn-primary">Calculate</button>
+                </div>
+            </div>
+            <div id="bmicalculation">
+            </div>
+        </div>
+        <div class="tab-pane fade" id="api2" role="tabpanel">
+            <div class="container searchContainer mb-3">
+                <div class="search card card-body">
+                    <h1>Ideal Weight</h1>
+                    <p class="lead">Enter your gender:</p>
+                    <input type="text" id="gender" class="form-control" placeholder="enter gender...">
+                    <p class="lead">Enter your height in cm:</p>
+                    <input type="text" id="idealheight" class="form-control" placeholder="enter height...">
+                    <br> 
+                    <button type="button" id="button2" class="btn btn-primary">Calculate</button>
+                </div>
+            </div>
+            <div id="idealweightcalculation">
+            </div>
+        </div>
+        <div class="tab-pane fade" id="api3" role="tabpanel">
+            <div class="container searchContainer mb-3">
+                <div class="search card card-body">
+                    <h1>Inches to Centimeters Converter</h1>
+                    <p class="lead">Enter your height in inches:</p>
+                    <input type="text" id="heightinches" class="form-control" placeholder="enter height...">
+                    <br> 
+                    <button type="button" id="button3" class="btn btn-primary">Calculate</button>
+                </div>
+            </div>
+            <div id="intocmcalculation">
+            </div>
+        </div>
+        <div class="tab-pane fade" id="api4" role="tabpanel">
+            <div class="container searchContainer mb-3">
+                <div class="search card card-body">
+                    <h1>Pounds to Kilograms Converter</h1>
+                    <p class="lead">Enter your weight in pounds:</p>
+                    <input type="text" id="weightpounds" class="form-control" placeholder="enter weight...">
+                    <br> 
+                    <button type="button" id="button4" class="btn btn-primary">Calculate</button>
+                </div>
+            </div>
+            <div id="lbstokgcalculation">
+            </div>
+        </div>
+    </div>
+
+    <!-- Implementing BMI API -->
+    <script>
+        // BMI user interface
+        class BMIUI {
+            constructor() {
+                this.calculation = document.getElementById("bmicalculation");
+            }
+
+            // display calculation
+            showCalculation(user) {
+                this.calculation.innerHTML = `
+                <div class="card text-white bg-primary card-body mb-3">
+                    <div class="row">
+                        <div class="col">
+                            <p>Your BMI is: ${user.bmi}</p>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            // clear the media tag
+            clearCalculation()
+            {
+                this.calculation.innerHTML = '';
+            }
+        }
+
+        // class for processing requests and responses
+        class BMI {
+            constructor() {
+
+            }
+
+            // connect to api
+            async getCalculation(weight, height) {
+                const calculationResponse = await fetch(`http://localhost:3000/bmi/${weight}/${height}`,
+                {
+                    method: "GET",
+                });
+                const calculationData = await calculationResponse.json();
+                return {calculationData}
+            }
+        }   
+
+        //creating instances
+        bmi = new BMI;
+        
+        bmiui = new BMIUI;
+
+        // user input
+        var button = document.getElementById("button1");
+
+        // event listener
+        button.addEventListener("click", function (e) {
+            // retrieve input
+            const height = document.getElementById("bmiheight").value;
+            const weight = document.getElementById("bmiweight").value;
+
+            // check if value in textbox
+            if (!isNaN(height) && !isNaN(weight))
+            {
+                // connect to API
+                bmi.getCalculation(weight, height)
+                     .then (data => {
+                        // display the media
+                        bmiui.showCalculation(data.calculationData);
+                        console.log(data); 
+                })
+            }
+            else
+            {
+                bmiui.clearCalculation();
+            }
+        });
+    </script>
+    <!-- Implementing Ideal Weight API -->
+    <script>
+        class IdealWeightUI {
+            constructor() {
+                this.calculation = document.getElementById("idealweightcalculation");
+            }
+
+            showCalculation(user) {
+                this.calculation.innerHTML = `
+                <div class="card text-white bg-primary card-body mb-3">
+                    <div class="row">
+                        <div class="col">
+                            <p>Your ideal weight is: ${user.idealweight} kg</p>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            clearCalculation()
+            {
+                this.calculation.innerHTML = '';
+            }
+        }
+
+        class IdealWeight {
+            constructor() {
+
+            }
+
+            async getCalculation(gender, height) {
+                const calculationResponse = await fetch(`http://localhost:3000/idealweight/${gender}/${height}`,
+                {
+                    method: "GET",
+                });
+                const calculationData = await calculationResponse.json();
+                return {calculationData}
+            }
+        }   
+
+        idealweight = new IdealWeight;
+        
+        idealweightui = new IdealWeightUI;
+
+        var button = document.getElementById("button2");
+
+        button.addEventListener("click", function (e) {
+            const gender = document.getElementById("gender").value;
+            const height = document.getElementById("idealheight").value;
+
+            if (gender !== '' && !isNaN(height))
+            {
+                idealweight.getCalculation(gender, height)
+                        .then (data => {
+                        idealweightui.showCalculation(data.calculationData);
+                        console.log(data); 
+                })
+            }
+            else
+            {
+                idealweightui.clearCalculation();
+            }
+        });
+    </script>
+        <!-- Implementing in to cm API -->
+    <script>
+        class InToCmUI {
+            constructor() {
+                this.calculation = document.getElementById("intocmcalculation");
+            }
+
+            showCalculation(user) {
+                this.calculation.innerHTML = `
+                <div class="card text-white bg-primary card-body mb-3">
+                    <div class="row">
+                        <div class="col">
+                            <p>Your height in cm is: ${user.intocm}</p>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            clearCalculation()
+            {
+                this.calculation.innerHTML = '';
+            }
+        }
+
+        class InToCm {
+            constructor() {
+
+            }
+
+            async getCalculation(height) {
+                const calculationResponse = await fetch(`http://localhost:3000/intocm/${height}`,
+                {
+                    method: "GET",
+                });
+                const calculationData = await calculationResponse.json();
+                return {calculationData}
+            }
+        }   
+
+        intocm = new InToCm;
+        
+        intocmui = new InToCmUI;
+
+        var button = document.getElementById("button3");
+
+        button.addEventListener("click", function (e) {
+            const height = document.getElementById("heightinches").value;
+
+            if (!isNaN(height))
+            {
+                intocm.getCalculation(height)
+                        .then (data => {
+                            intocmui.showCalculation(data.calculationData);
+                        console.log(data); 
+                })
+            }
+            else
+            {
+                intocmui.clearCalculation();
+            }
+        });
+    </script>
+    <!-- Implementing lbs to kg API -->
+    <script>
+        class LbsToKgUI {
+            constructor() {
+                this.calculation = document.getElementById("lbstokgcalculation");
+            }
+
+            showCalculation(user) {
+                this.calculation.innerHTML = `
+                <div class="card text-white bg-primary card-body mb-3">
+                    <div class="row">
+                        <div class="col">
+                            <p>Your weight in kg is: ${user.lbstokg}</p>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            clearCalculation()
+            {
+                this.calculation.innerHTML = '';
+            }
+        }
+
+        class LbsToKg {
+            constructor() {
+
+            }
+
+            async getCalculation(weight) {
+                const calculationResponse = await fetch(`http://localhost:3000/lbstokg/${weight}`,
+                {
+                    method: "GET",
+                });
+                const calculationData = await calculationResponse.json();
+                return {calculationData}
+            }
+        }   
+
+        lbstokg = new LbsToKg;
+        
+        lbstokgui = new LbsToKgUI;
+
+        var button = document.getElementById("button4");
+
+        button.addEventListener("click", function (e) {
+            const weight = document.getElementById("weightpounds").value;
+
+            if (!isNaN(weight))
+            {
+                lbstokg.getCalculation(weight)
+                        .then (data => {
+                            lbstokgui.showCalculation(data.calculationData);
+                        console.log(data); 
+                })
+            }
+            else
+            {
+                lbstokgui.clearCalculation();
+            }
+        });
+    </script>
+</body>
+</html>
+</body>
+</html>
