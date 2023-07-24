@@ -4,4 +4,4 @@ How to run:
     3. Run "node index.js" through terminal
     4. Open index.js in web browser
 
-GitHub: 
+GitHub: https://github.com/ijneb/Assignment3
